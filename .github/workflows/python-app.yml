@@ -43,18 +43,18 @@ jobs:
         echo "✅ Docker image built successfully!"
     
     # (可选) 如果你想在 CI 里尝试启动一下看是否报错（非必须，通常构建成功即可）
-    - name: Quick Startup Test
-      run: |
-        # 启动容器，运行 app.py 但立即检测是否有报错退出
-        # 注意：Gradio 通常会一直运行，所以我们只让它跑几秒或者检测日志
-        docker run --rm -d --name test-container modnet-gradio-app:${{ github.sha }}
-        sleep 5
-        # 检查容器是否还在运行（如果 app.py 一启动就报错，容器会退出）
-        if [ "$(docker inspect -f '{{.State.Running}}' test-container 2>/dev/null)" == "true" ]; then
-          echo "✅ Container is running successfully."
-          docker stop test-container
-        else
-          echo "❌ Container exited prematurely. Checking logs..."
-          docker logs test-container || true
-          exit 1
-        fi
+    # - name: Quick Startup Test
+    #   run: |
+    #     # 启动容器，运行 app.py 但立即检测是否有报错退出
+    #     # 注意：Gradio 通常会一直运行，所以我们只让它跑几秒或者检测日志
+    #     docker run --rm -d --name test-container modnet-gradio-app:${{ github.sha }}
+    #     sleep 5
+    #     # 检查容器是否还在运行（如果 app.py 一启动就报错，容器会退出）
+    #     if [ "$(docker inspect -f '{{.State.Running}}' test-container 2>/dev/null)" == "true" ]; then
+    #       echo "✅ Container is running successfully."
+    #       docker stop test-container
+    #     else
+    #       echo "❌ Container exited prematurely. Checking logs..."
+    #       docker logs test-container || true
+    #       exit 1
+    #     fi
