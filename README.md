@@ -21,3 +21,6 @@ docker compose up --build
 ```bash
 docker compose up -d
 ```
+
+#### 使用
+访问 http://localhost:7860
