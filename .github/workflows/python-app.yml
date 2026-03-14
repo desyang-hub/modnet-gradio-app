@@ -1,0 +1,60 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Modnet gradio app
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker Image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: false
+        # 使用 commit sha 作为标签，方便追踪
+        tags: modnet-gradio-app:${{ github.sha }}
+        # 启用 GitHub Actions 缓存，加速后续构建
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        # 如果构建过程中任何一步失败（如 pip install 失败），此步骤会报错并停止 CI
+        load: true
+
+    - name: Verify Image Created
+      run: |
+        docker images | grep modnet-gradio-app
+        echo "✅ Docker image built successfully!"
+    
+    # (可选) 如果你想在 CI 里尝试启动一下看是否报错（非必须，通常构建成功即可）
+    - name: Quick Startup Test
+      run: |
+        # 启动容器，运行 app.py 但立即检测是否有报错退出
+        # 注意：Gradio 通常会一直运行，所以我们只让它跑几秒或者检测日志
+        docker run --rm -d --name test-container modnet-gradio-app:${{ github.sha }}
+        sleep 5
+        # 检查容器是否还在运行（如果 app.py 一启动就报错，容器会退出）
+        if [ "$(docker inspect -f '{{.State.Running}}' test-container 2>/dev/null)" == "true" ]; then
+          echo "✅ Container is running successfully."
+          docker stop test-container
+        else
+          echo "❌ Container exited prematurely. Checking logs..."
+          docker logs test-container || true
+          exit 1
+        fi
