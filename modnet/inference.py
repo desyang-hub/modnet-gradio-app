@@ -98,7 +98,7 @@ def predict(im, crop=True):
     img_array = img_array.transpose(2, 0, 1)[np.newaxis, ...]
     
     # 运行模型推理
-    session = onnxruntime.InferenceSession(model_path, None)
+    session = onnxruntime.InferenceSession(model_path, providers=['CPUExecutionProvider'])
     input_name = session.get_inputs()[0].name
     output_name = session.get_outputs()[0].name
     result = session.run([output_name], {input_name: img_array})

@@ -9,3 +9,15 @@ $ pip install -r requirements.txt
 ```bash
 $ python app.py
 ```
+
+#### Docker部署
+
+构建镜像
+```bash
+docker compose up --build
+```
+
+启动服务
+```bash
+docker compose up -d
+```
